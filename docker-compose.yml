@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  address-form:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_DADATA_TOKEN=${VITE_DADATA_TOKEN}
+        - VITE_WEBHOOK_URL=${VITE_WEBHOOK_URL}
+    container_name: address-form
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
