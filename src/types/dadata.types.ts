@@ -9,13 +9,11 @@ export type {
 
 // Дополнительные типы для нашего приложения
 export interface QueryParams {
-  user_id?: string;
-  session_id?: string;
+  [key: string]: string | undefined;
 }
 
 export interface WebhookPayload {
-  user_id?: string;
-  session_id?: string;
+  [key: string]: any;
   address: DaDataSuggestionType<DaDataAddressType> | null;
   timestamp: string;
   source: string;

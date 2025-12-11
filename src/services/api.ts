@@ -5,8 +5,7 @@ const WEBHOOK_URL = import.meta.env.VITE_WEBHOOK_URL;
 
 interface AddressPayload {
   address: DaDataSuggestion<DaDataAddress> | undefined;
-  user_id?: string;
-  session_id?: string;
+  [key: string]: any;
 }
 
 /**

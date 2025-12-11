@@ -12,7 +12,7 @@ export const AddressForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const { user_id, session_id } = useQueryParams();
+  const queryParams = useQueryParams();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,8 +29,7 @@ export const AddressForm = () => {
     try {
       await sendAddressData({
         address,
-        user_id,
-        session_id,
+        ...queryParams,
       });
 
       setSuccess(true);
@@ -66,11 +65,12 @@ export const AddressForm = () => {
       <h1>📍 Выбор адреса доставки</h1>
 
       {/* Debug info - показываем query параметры */}
-      {(user_id || session_id) && (
+      {Object.keys(queryParams).length > 0 && (
         <div className="debug-info">
           <p><strong>Debug информация:</strong></p>
-          {user_id && <p>👤 User ID: <code>{user_id}</code></p>}
-          {session_id && <p>🔑 Session ID: <code>{session_id}</code></p>}
+          {Object.entries(queryParams).map(([key, value]) => (
+            <p key={key}>🔑 {key}: <code>{value}</code></p>
+          ))}
         </div>
       )}
 

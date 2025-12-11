@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import type { QueryParams } from '../types/dadata.types';
 
 /**
- * Хук для чтения query параметров из URL
- * Извлекает user_id и session_id из URL
+ * Хук для чтения всех query параметров из URL
+ * Извлекает все параметры динамически
  *
  * Примеры:
  * - ?user_id=123 → { user_id: "123" }
- * - ?user_id=123&session_id=abc → { user_id: "123", session_id: "abc" }
+ * - ?user_id=123&order_session_id=abc → { user_id: "123", order_session_id: "abc" }
+ * - ?foo=bar&baz=qux → { foo: "bar", baz: "qux" }
  * - без параметров → {}
  */
 export const useQueryParams = (): QueryParams => {
@@ -15,20 +16,17 @@ export const useQueryParams = (): QueryParams => {
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
+    const allParams: QueryParams = {};
 
-    const user_id = searchParams.get('user_id');
-    const session_id = searchParams.get('session_id');
-
-    setParams({
-      user_id: user_id || undefined,
-      session_id: session_id || undefined,
+    // Извлекаем все query параметры
+    searchParams.forEach((value, key) => {
+      allParams[key] = value;
     });
+
+    setParams(allParams);
 
     // Логируем для отладки
-    console.log('Query params:', {
-      user_id: user_id || 'not provided',
-      session_id: session_id || 'not provided'
-    });
+    console.log('Query params:', Object.keys(allParams).length > 0 ? allParams : 'no params');
   }, []);
 
   return params;
