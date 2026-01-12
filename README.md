@@ -4,12 +4,21 @@ React-приложение для выбора адреса с автодопо�
 
 ## ✨ Возможности
 
-- 🔍 **Автодополнение адресов** через DaData API
+### 🎯 Поэтапный выбор адреса (v2.0)
+- **Шаг 1:** Выбор города (фильтр DaData: только города)
+- **Шаг 2:** Выбор улицы (только улицы в выбранном городе)
+- **Шаг 3:** Выбор дома (только дома на выбранной улице)
+- **Шаг 4:** Дополнительные детали (квартира, подъезд, этаж, комментарии)
+
+### 🔧 Основные функции
+- 🔍 **Умная фильтрация DaData** - поэтапная фильтрация по FIAS ID
+- 📊 **Индикатор прогресса** - визуальное отображение этапов (1/4 → 2/4 → 3/4 → 4/4)
+- 📝 **Расширенные поля** - корпус, квартира, подъезд, этаж, комментарии для логистики
 - 🔗 **Query параметры** - передача `user_id` и `session_id` через URL
-- 📤 **Webhook интеграция** - отправка данных на N8N webhook
+- 📤 **Webhook интеграция** - структурированная отправка данных на N8N
 - 🐳 **Docker-ready** - готов к развертыванию в контейнере
 - 📱 **Responsive** - адаптивный дизайн для всех устройств
-- ⚡ **Vite + React** - быстрая разработка и сборка
+- ⚡ **Vite + React + TypeScript** - современный стек разработки
 
 ---
 
@@ -262,8 +271,10 @@ address-form/
     ├── index.css           # Глобальные стили
     │
     ├── components/
-    │   ├── AddressForm.tsx # Компонент формы
-    │   └── AddressForm.css # Стили формы
+    │   ├── AddressForm.tsx              # Старая форма (одно поле)
+    │   ├── AddressForm.css
+    │   ├── StepByStepAddressForm.tsx    # ✨ Новая форма (поэтапный выбор)
+    │   └── StepByStepAddressForm.css
     │
     ├── hooks/
     │   └── useQueryParams.ts # Хук для query параметров
@@ -272,7 +283,8 @@ address-form/
     │   └── api.ts          # API сервис для webhook
     │
     └── types/
-        └── dadata.types.ts # TypeScript типы
+        ├── dadata.types.ts          # Типы DaData
+        └── stepByStepForm.types.ts  # ✨ Типы поэтапной формы
 ```
 
 ---
@@ -286,33 +298,67 @@ address-form/
 | `VITE_DADATA_TOKEN` | ✅ | API токен DaData | `abc123...` |
 | `VITE_WEBHOOK_URL` | ✅ | URL N8N webhook | `https://n8n.example.com/webhook/address` |
 
-### Формат данных webhook
+### Формат данных webhook (v2.0 - Поэтапная форма)
 
 Твой N8N webhook получит следующий JSON:
 
 ```json
 {
-  "user_id": "12345",
-  "session_id": "abc-def-789",
-  "address": {
-    "value": "г Москва, ул Льва Толстого, д 16",
-    "unrestricted_value": "119021, г Москва, р-н Хамовники, ул Льва Толстого, д 16",
+  "user_id": "test123",
+  "session_id": "test-session-456",
+
+  "city": {
+    "value": "г Санкт-Петербург",
+    "unrestricted_value": "190000, г Санкт-Петербург",
     "data": {
-      "postal_code": "119021",
-      "country": "Россия",
-      "country_iso_code": "RU",
-      "region": "Москва",
-      "city": "Москва",
-      "street": "Льва Толстого",
-      "house": "16",
-      "geo_lat": "55.733771",
-      "geo_lon": "37.587937"
+      "city_fias_id": "c2deb16a-0330-4f05-821f-1d09c93331e6",
+      "city": "Санкт-Петербург",
+      "postal_code": "190000",
+      "geo_lat": "59.9390012",
+      "geo_lon": "30.3158184"
     }
   },
-  "timestamp": "2025-12-10T12:34:56.789Z",
-  "source": "address_form"
+
+  "street": {
+    "value": "г Санкт-Петербург, Дачный пр-кт",
+    "data": {
+      "street_fias_id": "a659c147-1946-41b0-8a43-f5e2ac00b9be",
+      "street": "Дачный",
+      "street_with_type": "Дачный пр-кт"
+    }
+  },
+
+  "house": {
+    "value": "г Санкт-Петербург, Дачный пр-кт, д 20",
+    "data": {
+      "house": "20",
+      "geo_lat": "59.842743",
+      "geo_lon": "30.2561637"
+    }
+  },
+
+  "building": "1",
+  "apartment": "2",
+  "entrance": "2",
+  "floor": "2",
+  "courierComment": "Комментарий для курьера",
+  "deliveryConditions": "Низкая арка, нужен пропуск",
+
+  "fullAddress": "г Санкт-Петербург, Дачный пр-кт, д. 20, корп. 1, кв. 2",
+  "timestamp": "2026-01-11T15:09:46.034Z",
+  "source": "step_by_step_address_form"
 }
 ```
+
+**Поля:**
+- `city`, `street`, `house` - полные объекты DaData с FIAS ID и GPS координатами
+- `building` - корпус/строение (опционально)
+- `apartment` - квартира/офис (обязательно)
+- `entrance` - подъезд (опционально)
+- `floor` - этаж (опционально)
+- `courierComment` - комментарий для курьера (опционально)
+- `deliveryConditions` - особые условия доставки (опционально)
+- `fullAddress` - человеко-читаемый адрес одной строкой
 
 ---
 

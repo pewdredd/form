@@ -5,6 +5,8 @@ export type {
   DaDataAddressSuggestion
 } from 'react-dadata';
 
+import type { DaDataSuggestion, DaDataAddress } from 'react-dadata';
+
 // Дополнительные типы для нашего приложения
 export interface QueryParams {
   user_id?: string;

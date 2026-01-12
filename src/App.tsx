@@ -1,10 +1,10 @@
-import { AddressForm } from './components/AddressForm';
+import { StepByStepAddressForm } from './components/StepByStepAddressForm';
 import './App.css';
 
 function App() {
   return (
     <div className="app">
-      <AddressForm />
+      <StepByStepAddressForm />
     </div>
   );
 }
