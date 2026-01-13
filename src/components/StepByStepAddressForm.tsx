@@ -198,8 +198,12 @@ export const StepByStepAddressForm = () => {
             onChange={handleCityChange}
             filterFromBound="city"
             filterToBound="city"
+            filterLocations={[
+              { city_fias_id: 'c2deb16a-0330-4f05-821f-1d09c93331e6' }, // Санкт-Петербург
+              { region_fias_id: '6d1ebb35-70c6-4129-bd55-da3969658f5d' }, // Ленинградская область
+            ]}
             inputProps={{
-              placeholder: 'Начните вводить название города...',
+              placeholder: 'СПб или города Ленинградской области...',
               required: true,
               id: 'city',
             }}
@@ -207,7 +211,7 @@ export const StepByStepAddressForm = () => {
             delay={300}
           />
           <small className="help-text">
-            Выберите город из списка подсказок
+            Доступны только Санкт-Петербург и города Ленинградской области
           </small>
         </div>
 
@@ -221,7 +225,7 @@ export const StepByStepAddressForm = () => {
             value={formData.street}
             onChange={handleStreetChange}
             filterFromBound="street"
-            filterToBound="street"
+            filterToBound="house"
             filterLocations={formData.city_fias_id ? [{ city_fias_id: formData.city_fias_id }] : undefined}
             inputProps={{
               placeholder: canEnableStreet ? 'Начните вводить название улицы...' : 'Сначала выберите город',
